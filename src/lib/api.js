@@ -1,1 +1,1 @@
-export const BASE_API = 'http://localhost:2021/'
+export const BASE_API = 'https://jubelio-products.herokuapp.com/'
