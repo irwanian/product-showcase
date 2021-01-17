@@ -1,7 +1,7 @@
-import React from 'react'
 import { runInAction } from 'mobx'
+import Swal from 'sweetalert2'
 import { sendHttpRequest } from '../lib/httpRequest'
-import { BASE_API } from '../lib/api'
+import { GET_ALL_PRODUCTS, DELETE_PRODUCT, EDIT_PRODUCT } from '../lib/endPoints'
 
 export const ProductStore = () => {
     return {
@@ -18,11 +18,10 @@ export const ProductStore = () => {
         editProductPriceValue: 0,
         editProductImageValue: '',
         editProductDescriptionValue: '',
-
         async fetchProducts(params){
             try {
                 const getProductElements = {
-                    url: `${BASE_API}products/?page=${params.page}&rows=${params.rows}&keyword=${params.keyword}&order=${params.order}`,
+                    url: GET_ALL_PRODUCTS(),
                     method: 'get'
                 }
                 const productData = await sendHttpRequest(getProductElements)
@@ -30,33 +29,32 @@ export const ProductStore = () => {
                 runInAction(() => {
                     this.products = productData
                 })
-                console.log({ productData: this.products })
             } catch (error) {
                 throw error            
             }
         },
-        async deleteProduct(e, id){
+        async deleteProduct(e, data){
             e.preventDefault()
             this.setLoading('delete')
             try {
-                console.log({ id })
                 const deleteProductElements = {
-                    url: `${BASE_API}products/${id}/delete`,
+                    url: DELETE_PRODUCT(data.id),
                     method: 'delete'
                 }
+                await sendHttpRequest(deleteProductElements)
 
-                const productDeleted = await sendHttpRequest(deleteProductElements)
-
-                console.log({ productDeleted })
-                this.isModalOpen = false
-                this.fetchProducts({ page: 1, rows: 1000, keyword: '', order: 'id asc' })
+                runInAction(()=> {
+                    this.isModalOpen = false
+                })
+                this.throwAlert('delete', data.name)
+                this.fetchProducts()
                 this.setLoading('delete')
             } catch (error) {
                 this.setLoading('delete')
                 throw error
             }
         },
-        async submitEditData(e, id){
+        async submitEditData(e, data){
             e.preventDefault()
             try {
                 const objEditProduct = {
@@ -68,33 +66,48 @@ export const ProductStore = () => {
                 }
     
                 const editProductElements = {
-                    url: `${BASE_API}products/${id}`,
-                    method: 'post',
+                    url: EDIT_PRODUCT + data.id,
+                    method: 'put',
                     body: objEditProduct
                 }
     
                 const productEdited = await sendHttpRequest(editProductElements)
-                console.log({ productEdited })
-                
-                this.fetchProducts({ page: 1, rows: 1000, keyword: '', order: 'id asc' })
+                this.setModalEdit(e, productEdited)
+                this.throwAlert('edit', data.name)
+                this.fetchProducts()
             } catch (error) {
-                th                
+                throw error              
             }
         },
-        onProductNameValueChange(e){
-            this.editProductNameValue = e.target.value
+        setDefaultFormData(previousData){
+            if (previousData){
+                this.editProductNameValue = previousData.name
+                this.editProductPriceValue = previousData.price
+                this.editProductSkuValue = previousData.sku
+                this.editProductDescriptionValue = previousData.description
+                this.editProductImageValue = previousData.image
+            }
         },
-        onProductSkuValueChange(e){
-            this.editProductSkuValue = e.target.value
-        },
-        onProductPriceValueChange(e){
-            this.editProductImageValue = Number(e.target.value)
-        },
-        onProductDescriptionValueChange(e){
-            this.editProductPriceValue = e.target.value
-        },
-        onProductImageValueChange(e){
-            this.editProductDescriptionValue = e.target.value
+        onValueChange(e, option){
+            switch (option) {
+                case 'name':
+                    this.editProductNameValue = e.target.value
+                    break;
+                case 'price':
+                    this.editProductPriceValue = Number(e.target.value)
+                    break;
+                case 'sku':
+                    this.editProductSkuValue = e.target.value
+                    break;
+                case 'image':
+                    this.editProductImageValue = e.target.value
+                    break;
+                case 'description':
+                    this.editProductDescriptionValue = e.target.value
+                    break;
+                default:
+                    return null
+            }
         },
         setLoading(option){
             switch (option) {
@@ -109,18 +122,37 @@ export const ProductStore = () => {
         setModal(e, data){
             e.preventDefault()
             this.modalData = data
-            console.log(this.modalData)
             this.isModalOpen = !this.isModalOpen
         },
         setModalEdit(e, data){
             e.preventDefault()
             this.modalEditData = data
-            console.log(this.modalData)
             this.isModalOpen = false
             this.isModalEditOpen = !this.isModalEditOpen
         },
+        closeAlert(options){
+            options === 'edit' ? this.isEditProductSuccess = false : this.isDeleteProductSuccess = false
+        },
         cancelEdit(){
             this.isModalEditOpen = false
+        },
+        throwAlert(type, name){
+            if (type === 'edit'){
+                Swal.fire({
+                    icon: 'success',
+                    title: `Succesfully Edit ${name}`,
+                    showConfirmButton: false,
+                    timer: 1000
+                  })
+            }
+            else {
+                Swal.fire({
+                    icon: 'success',
+                    title: `${name} Deleted`,
+                    showConfirmButton: false,
+                    timer: 1000
+                  })
+            }
         }
     }
 }

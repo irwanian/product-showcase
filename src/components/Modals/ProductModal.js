@@ -7,7 +7,6 @@ import ModalEdit from './ProductModalForm'
 
 const ProductModal = (props) => {
     const store = useProductsStore()
-    console.log({ store })
 
 const renderModal = () => {
     if (store.isModalProductLoading){
@@ -35,7 +34,7 @@ const renderModal = () => {
             </div>
             </ModalBody>
             <ModalFooter>
-                <button onClick={(e) => store.deleteProduct(e, props.data ? props.data.id : '')} type="button" className="btn btn-danger"> Delete </button>
+                <button onClick={(e) => store.deleteProduct(e, props.data ? props.data : '')} type="button" className="btn btn-danger"> Delete </button>
                 <button onClick={(e) => store.setModalEdit(e, props.data ? props.data : {})} type="button" className="btn btn-primary"> Edit </button>
             </ModalFooter>
         </Modal>

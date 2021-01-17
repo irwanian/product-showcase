@@ -1,6 +1,5 @@
 import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { Observer } from 'mobx-react'
-import { formatMoneyToIdr } from '../../lib/moneyFormat'
 import { useProductsStore } from '../../contexts/ProductContext'
 import Loading from '../Loading'
 import Form from '../ModalForm'
@@ -8,8 +7,7 @@ import Form from '../ModalForm'
 const ProductModal = (props) => {
     const store = useProductsStore()
 
-    console.log({ editStore: store })
-const renderModal = () => {
+    const renderModal = () => {
     if (store.isModalEditLoading){
         return (
             <div className="mx-auto d-flex justify-content-center align-items-center">
@@ -25,7 +23,7 @@ const renderModal = () => {
             </ModalBody>
             <ModalFooter>
                 <button onClick={()=> store.cancelEdit()} type="button" className="btn btn-danger"> Cancel </button>
-                <button type="button" className="btn btn-primary"> Edit </button>
+                <button onClick={(e) => store.submitEditData(e, props.data ? props.data : 0)} type="button" className="btn btn-primary"> Edit </button>
             </ModalFooter>
         </Modal>
     )

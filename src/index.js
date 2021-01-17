@@ -6,11 +6,11 @@ import { ProductsProvider } from './contexts/ProductContext';
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 ReactDOM.render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <ProductsProvider>
       <App />
-    </ProductsProvider>
-  </React.StrictMode>,
+    </ProductsProvider>,
+  // </React.StrictMode>,
   document.getElementById('root')
 );
 

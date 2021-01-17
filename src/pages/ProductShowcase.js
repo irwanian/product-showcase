@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Observer } from 'mobx-react'
 import { useProductsStore } from '../contexts/ProductContext'
 import { formatMoneyToIdr } from '../lib/moneyFormat'
 import ProductCard from '../components/ProductCard'
 import Loading from '../components/Loading'
 import ProductModal from '../components/Modals/ProductModal'
+import Alert from '../components/Alert'
 
 const ProductShowcase = () => {
     const store = useProductsStore()
